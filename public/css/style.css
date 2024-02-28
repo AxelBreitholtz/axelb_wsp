@@ -1,0 +1,39 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+header {
+    background-color: rgb(96,185,34);
+    color: white;
+    display: flex;
+    justify-content: flex-start;  
+    align-items: center;
+    padding: 20px;
+    height: 80px;
+}
+nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+ul {
+    list-style: none;
+}
+
+li {
+    display: inline-block;
+    margin: 50px;
+    font-size: 1.4rem;
+}
+
+a {
+    font-style: none;
+}
+
+a:hover {
+    cursor: pointer;
+    font-weight: bolder;
+}

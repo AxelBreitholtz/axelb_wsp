@@ -1,4 +1,5 @@
 h2 Ligor:
 
-- ligor.each do |liga|
-    h3 #{liga["name"]}
+- results.each do |result|
+    h3 
+        a href="/clubs/index" #{result["id"]} #{result["name"]}
