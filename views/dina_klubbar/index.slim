@@ -1,0 +1,6 @@
+h2 Dina Klubbar:
+
+- results.each do |result|
+    h3 #{result["club_name"]} - Betyg: #{result["rating"]}
+    form method="POST" action="/clubs/#{result['id']}/delete"
+        input type="submit" value="Delete"

@@ -25,6 +25,13 @@ post('/clubs/new') do
     redirect '/clubs/new'
 end
 
+get('/clubs/index') do
+    db = SQLite3::Database.new('db/fotboll.db')
+    db.results_as_hash = true
+    @result = db.execute("SELECT * FROM clubs ORDER BY club_name ASC;")
+    slim(:"dina_klubbar/index", locals: {results:@result})
+end
+
 get('/clubs/index/:league_id') do
     db = SQLite3::Database.new('db/fotboll.db')
     db.results_as_hash = true
@@ -37,4 +44,10 @@ get('/clubs/index/:league_id') do
     "
     @result = db.execute(sql_code,[params[:league_id]])
     slim(:"klubbar/index", locals: {results:@result})
+end
+
+post('/clubs/:id/delete') do
+    id = params[:id].to_i
+
+    redirect '/clubs/index'
 end
