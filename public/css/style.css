@@ -4,8 +4,8 @@
 }
 
 header {
-    background-color: rgb(96,185,34);
-    color: white;
+    background-color: #3c4043;
+    color: #dadce0;
     display: flex;
     justify-content: flex-start;  
     align-items: center;
@@ -31,6 +31,7 @@ li {
 
 a {
     font-style: none;
+    color: pink;
 }
 
 a:hover {

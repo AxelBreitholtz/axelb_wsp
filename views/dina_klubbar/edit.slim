@@ -1,0 +1,11 @@
+h2 Uppdatera klubbnamn & betyg
+
+form action="/clubs/#{result['id']}/update" method="post"
+  input type="text" name="club_name" value="#{result['club_name']}"
+  input type="number" name="rating" value="#{result['rating']}"
+  input type="submit" value="Uppdatera"
+
+h2 Anmäl dig till en ny liga
+form action="/clubs/#{result['id']}/add" method="post"
+  input type="number" name="league_id" placeholder="Ligans id"
+  input type="submit" value="Lägg till"

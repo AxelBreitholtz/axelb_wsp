@@ -48,6 +48,33 @@ end
 
 post('/clubs/:id/delete') do
     id = params[:id].to_i
-
+    db = SQLite3::Database.new('db/fotboll.db')
+    db.execute("DELETE FROM clubs WHERE id = ?",id)
     redirect '/clubs/index'
+end
+
+post('/clubs/:id/update') do
+    id = params[:id].to_i
+    club_name = params[:club_name]
+    rating = params[:rating]
+    league_id = params[:league_id]
+    db = SQLite3::Database.new('db/fotboll.db')
+    db.execute("UPDATE clubs SET club_name=?,rating=? WHERE id=?",club_name,rating,id)
+    redirect('/clubs/index')
+end
+
+post('/clubs/:id/add') do
+    id = params[:id].to_i
+    league_id = params[:league_id]
+    db = SQLite3::Database.new('db/fotboll.db')
+    db.execute("INSERT INTO leaguesclubs (league_id,club_id) VALUES (?,?)",league_id,id)
+    redirect('/clubs/index')
+end
+
+get('/clubs/:id/edit') do
+    id = params[:id].to_i
+    db = SQLite3::Database.new('db/fotboll.db')
+    db.results_as_hash = true
+    @result = db.execute("SELECT * FROM clubs WHERE id = ?",id).first
+    slim(:"/dina_klubbar/edit", locals: {result:@result}) 
 end
