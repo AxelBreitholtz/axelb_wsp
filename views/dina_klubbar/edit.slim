@@ -6,6 +6,10 @@ form action="/clubs/#{result['id']}/update" method="post"
   input type="submit" value="Uppdatera"
 
 h2 Anmäl dig till en ny liga
-form action="/clubs/#{result['id']}/add" method="post"
+form action="/clubs/#{result['id']}/new" method="post"
   input type="number" name="league_id" placeholder="Ligans id"
-  input type="submit" value="Lägg till"
+  input type="submit" value="Lägg Till"
+
+h2 Radera klubb
+form method="POST" action="/clubs/#{result['id']}/delete"
+  input type="submit" value="Ta Bort Klubb"
