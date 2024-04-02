@@ -18,11 +18,12 @@ get('/clubs/new') do
 end 
 
 post('/clubs/new') do 
+    id = session[:id]
     klubbnamn = params[:klubbnamn]
     rating = params[:rating].to_i
     league_id = params[:league_id].to_i
     db = SQLite3::Database.new('db/fotboll.db')
-    db.execute("INSERT INTO clubs (club_name,rating) VALUES (?,?)",klubbnamn,rating)
+    db.execute("INSERT INTO clubs (club_name,rating,user_id) VALUES (?,?,?)",klubbnamn,rating,id)
     club_Id = db.execute("SELECT id FROM clubs ORDER BY id DESC LIMIT 1;")
     db.execute("INSERT INTO leaguesclubs (league_id,club_id) VALUES (?,?)",league_id,club_Id)
     redirect '/clubs/new'
