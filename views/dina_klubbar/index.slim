@@ -1,5 +1,6 @@
 h2 Dina Klubbar #{session[:username]}:
 
 - results.each do |result|
+    img src="/uploads/#{result['club_emblem']}" alt="Klubbmärke"
     h3 #{result["club_name"]} - Betyg: #{result["rating"]}
-    a href="/clubs/#{result['id']}/edit" Uppdatera
+    a class="uppdatera" href="/protected/clubs/#{result['id']}/edit" Uppdatera

@@ -3,6 +3,13 @@
     padding: 0px;
 }
 
+section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+}
+
 header {
     background-color: #3c4043;
     color: #dadce0;
@@ -16,7 +23,6 @@ nav {
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
 }
 
 ul {
@@ -31,11 +37,27 @@ li {
 
 a {
     font-style: none;
-    color: pink;
+    color: #dadce0;
     font-size: 1.2rem;
+}
+
+.liga {
+    color:#3c4043;
+    margin: 20px;
+}
+
+.uppdatera {
+    color:#3c4043;
+    margin: 10px;
 }
 
 a:hover {
     cursor: pointer;
     font-weight: bolder;
+}
+
+img {
+    height: 80px;
+    width: auto;
+    margin: 10px;
 }

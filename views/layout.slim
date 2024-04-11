@@ -6,25 +6,22 @@ html lang="en"
     meta name="viewport" content="width=device-width, initial-scale=1.0"/
     title Document
     link rel="stylesheet" href="/css/style.css"/
-  body 
-
-  header 
-    h1 League Simulator
-    nav    
-        ul  
-            li  
-                a href="/" Alla Ligor
-            li 
-                a href="/clubs/index" Dina Klubbar
-            li 
-                a href="/clubs/new" Skapa Ny Klubb
-            li  
-                a href="" Transfermarknad
-            li 
-                a href="/showregister" Registrera 
-            li 
-                a href="/showlogin" Logga In
-  
-  ==yield
+    body 
+        header 
+            h1 League Simulator
+            nav    
+                ul  
+                    li  
+                        a href="/" Alla Ligor
+                    li 
+                        a href="/protected/clubs/index" Dina Klubbar
+                    li 
+                        a href="/protected/clubs/new" Skapa Ny Klubb
+                    li 
+                        a href="/showregister" Registrera 
+                    li 
+                        a href="/showlogin" Logga In
+        section
+            ==yield
 
     
