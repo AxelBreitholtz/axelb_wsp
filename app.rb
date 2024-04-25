@@ -3,6 +3,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'sqlite3'
 require 'bcrypt'
+require_relative 'model.rb'
 
 enable :sessions
 
@@ -69,10 +70,13 @@ get('/clubs/index/:league_id') do
     slim(:"klubbar/index", locals: {results:@result})
 end
 
+# Tar bort klubbar (ska lägga till så att man kollar att den som tar bort äger klubben dvs om inloggat id tillhör klubben)
 post('/protected/clubs/:id/delete') do
     id = params[:id].to_i
     db = SQLite3::Database.new('db/fotboll.db')
     db.execute("DELETE FROM clubs WHERE id = ?",id)
+    # Tar även bort från relationstabellen
+    db.execute("DELETE FROM leaguesclubs WHERE club_id = ?",id)
     redirect '/protected/clubs/index'
 end
 
@@ -138,15 +142,28 @@ post('/login') do
     password = params[:password]
     db = SQLite3::Database.new('db/fotboll.db')
     db.results_as_hash = true
+
     @result = db.execute("SELECT * FROM users WHERE username = ?", username).first
+
+    if @result.nil?
+        set_login_attempt(username)
+        "Invalid Credentials"
+        redirect '/showlogin' #kanske nåt error vi får se
+    end
+    
     pwdigest = @result["pwd"]
     id = @result["id"]
-
-    if BCrypt::Password.new(pwdigest) == password
-        session[:id] = id
-        redirect("/")
+    if login_cooldown_expired(username)
+        if BCrypt::Password.new(pwdigest) == password
+            session.delete(:login_attempts)
+            session[:id] = id
+            redirect("/")
+        else
+            set_login_attempt(username)
+            "Invalid Credentials"
+        end
     else
-        "FEL LÖSENORD"
+        "Login cooldown aktiverad. Testa igen senare."
     end
 end
 
@@ -174,3 +191,26 @@ post('/protected/:id/upload_image') do
     end
     redirect '/protected/clubs/index'
 end 
+
+#funktioner som jag inte lyckas kalla från model.rb!!!
+
+def login_cooldown_expired(username)
+    max_login_attempts = 3  
+    cooldown_time = 10
+    last_attempt_time = session[:login_attempts]&.fetch(username, nil) # & för att ange att andra värdet kan vara nil och fetch för att få tag på hash
+    if last_attempt_time.nil?
+        return true
+    end 
+    if Time.now - last_attempt_time > cooldown_time 
+        return true
+    else
+        return false
+    end
+end
+
+def set_login_attempt(username)
+    if session[:login_attempts].nil?
+        session[:login_attempts] = {}
+    end
+    session[:login_attempts][username] = Time.now
+end
