@@ -1,21 +1,25 @@
 h2 Uppdatera klubbnamn & betyg
 
-form action="/protected/clubs/#{result['id']}/update" method="post"
-  input type="text" name="club_name" value="#{result['club_name']}"
-  input type="number" name="rating" value="#{result['rating']}"
+form action="/protected/clubs/#{results['id']}/update" method="post"
+  input type="text" name="club_name" value="#{results['club_name']}"
+  input type="number" name="rating" value="#{results['rating']}"
   input type="submit" value="Uppdatera"
 
 
-h2 Uppdate Klubbmärke
-form action="/protected/#{result['id']}/upload_image" method="post" enctype="multipart/form-data"
+
+
+h2 Uppdate klubbmärke
+form action="/protected/#{results['id']}/upload_image" method="post" enctype="multipart/form-data"
   input type="file" name="file"
   input type="submit" value="Uppdatera klubbmärke"
 
 h2 Anmäl dig till en ny liga
-form action="/protected/clubs/#{result['id']}/new" method="post"
-  input type="number" name="league_id" placeholder="Ligans id"
+form action="/protected/clubs/#{results['id']}/new" method="post"
+  select id="league" name="league_id" 
+    - league_results.each do |league_result|
+      option value="#{league_result["id"]}" #{league_result["name"]}    
   input type="submit" value="Lägg Till"
 
 h2 Radera klubb
-form method="POST" action="/protected/clubs/#{result['id']}/delete"
+form method="POST" action="/protected/clubs/#{results['id']}/delete"
   input type="submit" value="Ta Bort Klubb"

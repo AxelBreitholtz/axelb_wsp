@@ -3,6 +3,9 @@ h2 Skapa ny klubb
 form action="/protected/clubs/new" method="post"
     input type="text" name="klubbnamn" placeholder="Klubbnamn"
     input type="number" name="rating" placeholder="Rating"
-    input type="text" name="league_id" placeholder="Välj liga"
+    select id="league" name="league_id" 
+        - results.each do |result|
+            option value="#{result["id"]}" #{result["name"]}    
     input type="submit" value="Skapa Klubb"
+
 

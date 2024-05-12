@@ -3,3 +3,8 @@ h2 Ligor:
 - results.each do |result|
     h3 
         a class="liga" href="/clubs/index/#{result["id"]}" #{result["id"]} #{result["name"]}
+
+- p "här är user: #{user.class}"
+- if user.to_s.include?("admin")
+    h2 
+        a id="skapaliga" href="/admin/ligor/new" Skapa ny liga

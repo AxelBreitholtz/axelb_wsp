@@ -8,10 +8,12 @@ require_relative 'model.rb'
 enable :sessions
 
 get('/') do
+    id = session[:id].to_i  
     db = SQLite3::Database.new('db/fotboll.db')
     db.results_as_hash = true
     @result = db.execute("SELECT * FROM leagues ORDER BY leagues.id;")
-    slim(:"ligor/index", locals: {results:@result})
+    @user = db.execute("SELECT role FROM users WHERE id = ?", id)
+    slim(:"ligor/index", locals: {results:@result, user:@user})
 end
 
 before('/protected/*') do
@@ -21,17 +23,28 @@ before('/protected/*') do
     end
 end
 
+before('/admin/*') do
+    id = session[:id].to_i
+    db = SQLite3::Database.new('db/fotboll.db')
+    if db.execute("SELECT role from users WHERE id = ?",id).to_s.include?("admin")
+    else
+        p "detta är adminfunktionalitet"
+        redirect("/")
+    end
+end
+
+
 get('/protected/clubs/new') do 
-    slim(:"klubbar/new")
+    id = session[:id].to_i
+    db = SQLite3::Database.new('db/fotboll.db')
+    db.results_as_hash = true
+    @result = db.execute("SELECT * FROM leagues")
+    slim(:"klubbar/new", locals: {results:@result})
 end 
 
 post('/protected/clubs/new') do 
     db = SQLite3::Database.new('db/fotboll.db')
     club_names = db.execute("SELECT club_name FROM clubs WHERE club_name = ?", params[:klubbnamn])
-    p club_names.length
-    p params[:rating].to_i
-    p params[:klubbnamn]
-
 
     if params[:rating].to_i <= 10 && params[:rating].to_i >= 0 && params[:klubbnamn] != nil && club_names.length == 0
         id = session[:id]
@@ -74,27 +87,51 @@ end
 post('/protected/clubs/:id/delete') do
     id = params[:id].to_i
     db = SQLite3::Database.new('db/fotboll.db')
-    db.execute("DELETE FROM clubs WHERE id = ?",id)
-    # Tar även bort från relationstabellen
-    db.execute("DELETE FROM leaguesclubs WHERE club_id = ?",id)
+    user_id = db.execute("SELECT user_id FROM clubs WHERE id=?",id).first
+    if user_id.first.to_i == session[:id].to_i
+        db.execute("DELETE FROM clubs WHERE id = ?",id)
+        # Tar även bort från relationstabellen
+        db.execute("DELETE FROM leaguesclubs WHERE club_id = ?",id)
+    else
+        #Sinatra flash?
+        p "du äger inte denna klubben"
+    end
     redirect '/protected/clubs/index'
 end
 
 post('/protected/clubs/:id/update') do
     db = SQLite3::Database.new('db/fotboll.db')
-    club_names = db.execute("SELECT club_name FROM clubs WHERE club_name = ?", params[:club_name])
-    
-    #MÅSTE ÄNDRA SÅ ATT DET INTE BLIR ERROR NÄR MAN INTE BYTER NAMN
-    if params[:rating].to_i <= 10 && params[:rating].to_i >= 0 && params[:club_name] != nil && club_names.length == 0
-        id = params[:id].to_i
-        club_name = params[:club_name]
-        rating = params[:rating]
-        league_id = params[:league_id]
-        db.execute("UPDATE clubs SET club_name=?,rating=? WHERE id=?",club_name,rating,id)
-        redirect('/protected/clubs/index')
+    id = params[:id].to_i
+    club_name = params[:club_name]
+    rating = params[:rating]
+
+    club_names = db.execute("SELECT club_name FROM clubs WHERE club_name = ?", club_name)
+
+    user_id = db.execute("SELECT user_id FROM clubs WHERE id=?",id).first
+    if user_id.first.to_i == session[:id].to_i
+        if club_name && !club_name.empty?
+            existing_club_names = db.execute("SELECT club_name FROM clubs WHERE club_name = ? AND id != ?", club_name, id)
+            if existing_club_names.any?
+                return "Klubbnamnet finns redan"
+            end
+        end
+
+        # Check if the provided rating is within the valid range
+        if rating && !rating.empty?
+            rating_value = rating.to_i
+            if rating_value < 0 || rating_value > 10
+                return "Betyget måste vara mellan 0-10"
+            end
+        end
+
+        # Update the club record
+        db.execute("UPDATE clubs SET club_name = COALESCE(?, club_name), rating = COALESCE(?, rating) WHERE id = ?", club_name, rating, id)
     else
-        "Betyget måste vara mellan 1-10 eller tomt namn"
+        #Sinatra flash?
+        p "du äger inte denna klubben"
     end
+
+    redirect('/protected/clubs/index')
 
 end
 
@@ -111,8 +148,25 @@ get('/protected/clubs/:id/edit') do
     db = SQLite3::Database.new('db/fotboll.db')
     db.results_as_hash = true
     @result = db.execute("SELECT * FROM clubs WHERE id = ?",id).first
-    slim(:"/dina_klubbar/edit", locals: {result:@result}) 
+    @league_result = db.execute("SELECT id,name from leagues")
+    slim(:"/dina_klubbar/edit", locals: {results:@result,league_results:@league_result}) 
 end
+
+get('/admin/ligor/new') do 
+    db = SQLite3::Database.new('db/fotboll.db')
+    db.results_as_hash = true
+    slim(:"/ligor/new", locals: {results:@result})
+end
+
+post('/admin/ligor/new') do 
+    lignamn = params[:leaguename]
+    db = SQLite3::Database.new('db/fotboll.db')
+    db.results_as_hash = true
+    db.execute("INSERT INTO leagues (name) VALUES (?)", lignamn)
+
+    slim(:"/ligor/new", locals: {results:@result})
+end
+
 
 get('/showregister') do
     slim(:register)
